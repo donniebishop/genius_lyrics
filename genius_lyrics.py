@@ -88,7 +88,7 @@ def pick_from_search():
         print(result_line)
 
     choice = -1
-    while choice < 0 or choice > len(search_results):
+    while choice <= 0 or choice > len(search_results):
         choice = int(input('\nPlease select a song: '))
     actual_choice = choice - 1
 
