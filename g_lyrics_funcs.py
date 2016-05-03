@@ -59,19 +59,23 @@ def get_lyrics_from_url(song_url):
     return soup_lyrics
 
 
-def pick_from_search(result_instance):
+def pick_from_search(results_array):
     ''' If -s/--search is called, return a list of top results, and prompt
     choice from list. Will continue to prompt until it receives a valid choice.
     Returns HitResult instance of the appropriate JSON response. '''
 
     for n in range(len(results_array)):
-        current = results_array[n]
-        result_line = '[{}] {} - {}'.format(n+1, current.artist, current.title)
+        Current = results_array[n]
+        result_line = '[{}] {} - {}'.format(n+1, Current.artist, Current.title)
         print(result_line)
 
     choice = -1
     while choice <= 0 or choice > len(results_array):
-        choice = int(input('\nPlease select a song: '))
-    actual_choice = choice - 1
+        try:
+            choice = int(input('\nPlease select a song number: '))
+        except ValueError:
+            print('[!] Please enter a number.')
+            choice = -1
 
+    actual_choice = choice - 1
     return results_array[actual_choice]
