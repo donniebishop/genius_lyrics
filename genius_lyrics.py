@@ -11,8 +11,8 @@ from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description='The Python genius.com commandline lyric searcher.')
 
-parser.add_argument('song', nargs='+',
-                    help='Song to search genius.com for. Will automatically select the best result.')
+parser.add_argument('query', nargs='+',
+                    help='Query to search genius.com for. Will automatically select the best result.')
 parser.add_argument('-s', '--search',
                     action='store_true', default=False,
                     help='Display list of top results found. Suppresses automatic selection.')
@@ -107,7 +107,7 @@ def form_output(search_result):
 
 # Here's where the magic happens
 if __name__ == '__main__':
-    search_query = ' '.join(args.song)
+    search_query = ' '.join(args.query)
     search_results = genius_search(search_query)
 
     if args.search is True:
