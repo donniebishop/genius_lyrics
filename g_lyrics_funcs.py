@@ -2,7 +2,6 @@
 
 import lxml
 import requests
-import tempfile
 import subprocess
 from bs4 import BeautifulSoup
 

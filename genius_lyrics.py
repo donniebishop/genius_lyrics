@@ -2,6 +2,7 @@
 
 import sys
 import argparse
+import tempfile
 from g_lyrics_funcs import *
 
 parser = argparse.ArgumentParser(description='The Python genius.com commandline lyric searcher.')
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     if args.print_lyrics is True:
         print('\n' + all_together_now,)
     else:
-        with tempfile.NamedTemporaryFile(dir='/tmp') as t:
+        with tempfile.NamedTemporaryFile(prefix='glyrics_', dir='/tmp') as t:
             t.write(bytes(all_together_now, 'UTF-8'))
             t.seek(0)
             command_list = ['/bin/less', t.name]
