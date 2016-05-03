@@ -5,8 +5,27 @@ import requests
 import subprocess
 from bs4 import BeautifulSoup
 
+class HitResult():
+    def __init__(self, artist, title, song_id, url):
+        self.artist = artist
+        self.title = title
+        self.song_id = song_id
+        self.url = url
+
+    def form_output(self):
+        '''Forms lyric sheet output for either paging or printing directly to a terminal.'''
+
+        header = '{} - {}'.format(self.artist, self.title)
+        divider = '-'*(len(header) + 3)
+        lyrics = get_lyrics_from_url(self.url)
+
+        output = header + '\n' + divider + '\n' + lyrics + '\n'
+        return output
+
+
 def genius_search(query):
-    '''Uses the genius.com search API to return a dictionary of results found by the search engine.'''
+    ''' Uses the genius.com search API to return a list of HitResult instances,
+    formed by JSON responses from the search. '''
 
     results = []
     API = 'https://api.genius.com'
@@ -26,19 +45,13 @@ def genius_search(query):
             song_id = hit['result']['id']
             url = hit['result']['url']
 
-            hit_dict = {'artist': artist,
-                        'title': title,
-                        'song_id': song_id,
-                        'url': url
-                        }
-
-            results.append(hit_dict)
+            results.append(HitResult(artist, title, song_id, url))
 
     return results
 
 
 def get_lyrics_from_url(song_url):
-    '''Uses url key from search result dictionary and parses the lyrics.'''
+    '''Looks up song_url, parses page for lyrics and returns the lyrics.'''
 
     get_url = requests.get(song_url)
     song_soup = BeautifulSoup(get_url.text, 'lxml')
@@ -46,16 +59,14 @@ def get_lyrics_from_url(song_url):
     return soup_lyrics
 
 
-def pick_from_search(results_array):
-    '''
-    If -s/--search is called, return a list of top results, and prompt choice from list.
-    Will continue to prompt until it receives a valid choice. Returns dictionary of the
-    appropriate JSON response.
-    '''
+def pick_from_search(result_instance):
+    ''' If -s/--search is called, return a list of top results, and prompt
+    choice from list. Will continue to prompt until it receives a valid choice.
+    Returns HitResult instance of the appropriate JSON response. '''
 
     for n in range(len(results_array)):
         current = results_array[n]
-        result_line = '[{}] {} - {}'.format(n+1, current['artist'], current['title'])
+        result_line = '[{}] {} - {}'.format(n+1, current.artist, current.title)
         print(result_line)
 
     choice = -1
@@ -64,13 +75,3 @@ def pick_from_search(results_array):
     actual_choice = choice - 1
 
     return results_array[actual_choice]
-
-
-def form_output(search_result):
-    '''Forms lyric sheet output for either paging or printing directly to a terminal.'''
-
-    header = '{} - {}'.format(search_result['artist'], search_result['title'])
-    divider = '-'*(len(header) + 3)
-    lyrics = get_lyrics_from_url(search_result['url'])
-    output = header + '\n' + divider + '\n' + lyrics + '\n'
-    return output

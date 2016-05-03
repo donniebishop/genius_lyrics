@@ -28,11 +28,11 @@ if __name__ == '__main__':
     search_results = genius_search(search_query)
 
     if args.search is True:
-        user_choice = pick_from_search(search_results)
-        all_together_now = form_output(user_choice)
+        UserChoice = pick_from_search(search_results)
+        all_together_now = UserChoice.form_output()
     else:
-        top_result = search_results[0]
-        all_together_now = form_output(top_result)
+        TopResult = search_results[0]
+        all_together_now = TopResult.form_output()
 
     if args.print_lyrics is True:
         print('\n' + all_together_now,)
@@ -42,4 +42,4 @@ if __name__ == '__main__':
             t.seek(0)
             command_list = ['/bin/less', t.name]
             subprocess.call(command_list)
-    print()
+        print()
