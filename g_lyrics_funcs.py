@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import six
 import lxml
 import requests
 import subprocess
@@ -67,14 +68,14 @@ def pick_from_search(results_array):
     for n in range(len(results_array)):
         Current = results_array[n]
         result_line = '[{}] {} - {}'.format(n+1, Current.artist, Current.title)
-        print(result_line)
+        six.print_(result_line)
 
     choice = -1
     while choice <= 0 or choice > len(results_array):
         try:
             choice = int(input('\nPlease select a song number: '))
         except ValueError:
-            print('[!] Please enter a number.')
+            six.print_('[!] Please enter a number.')
             choice = -1
 
     actual_choice = choice - 1

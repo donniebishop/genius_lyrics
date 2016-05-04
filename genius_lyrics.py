@@ -35,11 +35,14 @@ if __name__ == '__main__':
         all_together_now = TopResult.form_output()
 
     if args.print_lyrics is True:
-        print('\n' + all_together_now,)
+        six.print_('\n' + all_together_now,)
     else:
         with tempfile.NamedTemporaryFile(prefix='glyrics_', dir='/tmp') as t:
-            t.write(bytes(all_together_now, 'UTF-8'))
+            try:
+                t.write(bytes(all_together_now, 'UTF-8'))
+            except TypeError:
+                t.write(bytes(all_together_now))
             t.seek(0)
             command_list = ['/bin/less', t.name]
             subprocess.call(command_list)
-        print()
+        six.print_()
