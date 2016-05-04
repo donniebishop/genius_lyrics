@@ -48,6 +48,16 @@ def genius_search(query):
 
             results.append(HitResult(artist, title, song_id, url))
 
+    elif 400 <= search_request_object.status_code < 500:
+        six.print_('[!] Uh-oh, something seems wrong...')
+        six.print_('[!] Please submit an issue at https://github.com/donniebishop/genius_lyrics/issues')
+        sys.exit(1)
+        
+    elif search_request_object.status_code >= 500:
+        six.print_('[*] Hmm... Genius.com seems to be having some issues right now.')
+        six.print_('[*] Please try your search again in a little bit!')
+        sys.exit(1)
+
     return results
 
 
