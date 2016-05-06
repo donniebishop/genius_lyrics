@@ -6,10 +6,10 @@ import requests
 import subprocess
 from bs4 import BeautifulSoup
 
-# Header uses client Authorization Token from api.genius.com. As such,
+# Header uses Client Authorization Token from api.genius.com. As such,
 # it is only allowed to request read-only endpoints from the API,
 # With that explained, I'm including it here. Mostly because I don't know
-# a better way of doing it. 
+# a better way of doing it.
 
 API = 'https://api.genius.com'
 HEADERS = {'Authorization': 'Bearer rDyWJrXXwACCg-otwQKmomcYSYFv2oQAN3vlTCV_507CW_pEQTQfQ98HtUYXq3W8'}
@@ -50,7 +50,7 @@ class HitResult():
 
                 for r in r_json_response['response']['referents']:
                     r_class = r['classification']
-                    r_frag = r['fragment']
+                    r_frag = r['fragment'].replace('\n ', '\n')
                     r_id = r['id']
                     r_url = r['url']
                     r_api_call = referents_request_object.url
