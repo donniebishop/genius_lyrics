@@ -17,6 +17,7 @@ class HitResult():
         self.song_id = song_id
         self.url = url
         self.api_call = api_call
+        self.referents = []
 
     def form_output(self):
         '''Forms lyric sheet output for either paging or printing directly to a terminal.'''
@@ -27,6 +28,30 @@ class HitResult():
 
         output = header + '\n' + divider + '\n' + lyrics + '\n'
         return output
+
+    def get_referents(self, force=False):
+        ''' Use song_id to pull referents for any annotations for the song. '''
+
+        if self.referents == [] or force is True:
+            referents_endpoint = API + '/referents'
+            payload = {'song_id': self.song_id, 'access_token': ACCESS_TOKEN}
+            referents_request_object = requests.get(referents_endpoint, params=payload)
+
+            if referents_request_object.status_code == 200:
+                r_json_response = referents_request_object.json()
+                api_call = referents_request_object.url
+
+                for r in r_json_response['response']['referents']:
+                    c = r['classification']
+                    f = r['fragment']
+                    a_id = r['id']
+                    r_url = r['url']
+
+                    self.referents.append(Referent(c, f, a_id, r_url, api_call))
+            elif referents_request_object.status_code >= 500:
+                pass
+        elif self.referents != []:
+            return self.referents
 
 
 def genius_search(query):
@@ -107,31 +132,6 @@ class Referent():
         self.url = url
         self.api_call = api_call
 
-
-def get_referents(song_id):
-    ''' Use song_id to pull referents for any annotations for the song. '''
-
-    referents = []
-
-    referents_endpoint = API + '/referents'
-    payload = {'song_id': song_id, 'access_token': ACCESS_TOKEN}
-    referents_request_object = requests.get(referents_endpoint, params=payload)
-
-    if referents_request_object.status_code == 200:
-        r_json_response = referents_request_object.json()
-        api_call = referents_request_object.url
-
-        for r in r_json_response['response']['referents']:
-            c = r['classification']
-            f = r['fragment']
-            a_id = r['id']
-            r_url = r['url']
-
-            referents.append(Referent(c, f, a_id, r_url, api_call))
-    elif referents_request_object.status_code >= 500:
-        pass
-
-    return referents
 
 # Annotations section
 
