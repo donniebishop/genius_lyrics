@@ -144,11 +144,12 @@ class Annotation():
         self.votes = votes
         self.api_call = api_call
 
+
 def get_annotation(annotation_id):
     '''' Used to pull specific annotation for lyrics. '''
 
     annotations_endpoint = API + '/annotations/' + str(annotation_id)
-    payload = {'access_token': ACCESS_TOKEN}
+    payload = {'text_format': 'plain', 'access_token': ACCESS_TOKEN}
     annotations_request_object = requests.get(annotations_endpoint, params=payload)
 
     if annotations_request_object.status_code == 200:
@@ -156,7 +157,7 @@ def get_annotation(annotation_id):
         a_json_response = annotations_request_object.json()
         a = a_json_response['response']['annotation']
 
-        text = a['body']['dom']['children'][0]['children'][0]
+        text = a['body']['plain']
         share_url = a['share_url']
         url = a['url']
         votes = a['votes_total']
