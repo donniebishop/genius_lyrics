@@ -6,8 +6,13 @@ import requests
 import subprocess
 from bs4 import BeautifulSoup
 
+# Header uses client Authorization Token from api.genius.com. As such,
+# it is only allowed to request read-only endpoints from the API,
+# With that explained, I'm including it here. Mostly because I don't know
+# a better way of doing it. 
+
 API = 'https://api.genius.com'
-ACCESS_TOKEN = 'Za979SFA7_pwCdjDaAsBhnPb3A5jSgcCMixyiDeJv7U415u3ko6Qd14HIJzqrXFj'
+HEADERS = {'Authorization': 'Bearer rDyWJrXXwACCg-otwQKmomcYSYFv2oQAN3vlTCV_507CW_pEQTQfQ98HtUYXq3W8'}
 
 class HitResult():
     ''' Class for representing metadata of search results. '''
@@ -37,9 +42,8 @@ class HitResult():
 
         if self.referents == [] or force is True:
             referents_endpoint = API + '/referents'
-            payload = {'song_id': self.song_id, 'text_format': 'plain', 'access_token': ACCESS_TOKEN}
-            referents_request_object = requests.get(referents_endpoint, params=payload)
-            api_call = referents_request_object.url
+            payload = {'song_id': self.song_id, 'text_format': 'plain'}
+            referents_request_object = requests.get(referents_endpoint, params=payload, headers=HEADERS)
 
             if referents_request_object.status_code == 200:
                 r_json_response = referents_request_object.json()
@@ -49,8 +53,9 @@ class HitResult():
                     r_frag = r['fragment']
                     r_id = r['id']
                     r_url = r['url']
+                    r_api_call = referents_request_object.url
 
-                    self.referents.append(Referent(r_class, r_frag, r_id, r_url, api_call))
+                    self.referents.append(Referent(r_class, r_frag, r_id, r_url, r_api_call))
 
                     for a in r['annotations']:
                         a_id = a['id']
@@ -58,8 +63,9 @@ class HitResult():
                         a_share = a['share_url']
                         a_url = a['url']
                         a_votes = a['votes_total']
+                        a_api_call = API + '/annotations/' + str(a_id)
 
-                        self.annotations.append(Annotation(a_id, a_text, a_share, a_url, a_votes, api_call))
+                        self.annotations.append(Annotation(a_id, a_text, a_share, a_url, a_votes, a_api_call))
 
             elif referents_request_object.status_code >= 500:
                 pass
@@ -94,8 +100,8 @@ def genius_search(query):
     results = []
 
     search_endpoint = API + '/search?'
-    payload = {'q': query, 'access_token': ACCESS_TOKEN}
-    search_request_object = requests.get(search_endpoint, params=payload)
+    payload = {'q': query}
+    search_request_object = requests.get(search_endpoint, params=payload, headers=HEADERS)
 
     if search_request_object.status_code == 200:
         s_json_response = search_request_object.json()
