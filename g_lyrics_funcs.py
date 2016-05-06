@@ -17,7 +17,10 @@ class HitResult():
         self.song_id = song_id
         self.url = url
         self.api_call = api_call
+
+        # for use at a later date
         self.referents = []
+        self.annotations = []
 
     def form_output(self):
         '''Forms lyric sheet output for either paging or printing directly to a terminal.'''
@@ -29,29 +32,59 @@ class HitResult():
         output = header + '\n' + divider + '\n' + lyrics + '\n'
         return output
 
-    def get_referents(self, force=False):
+    def get_referents_annotations(self, force=False):
         ''' Use song_id to pull referents for any annotations for the song. '''
 
         if self.referents == [] or force is True:
             referents_endpoint = API + '/referents'
-            payload = {'song_id': self.song_id, 'access_token': ACCESS_TOKEN}
+            payload = {'song_id': self.song_id, 'text_format': 'plain', 'access_token': ACCESS_TOKEN}
             referents_request_object = requests.get(referents_endpoint, params=payload)
+            api_call = referents_request_object.url
 
             if referents_request_object.status_code == 200:
                 r_json_response = referents_request_object.json()
-                api_call = referents_request_object.url
 
                 for r in r_json_response['response']['referents']:
-                    c = r['classification']
-                    f = r['fragment']
-                    a_id = r['id']
+                    r_class = r['classification']
+                    r_frag = r['fragment']
+                    r_id = r['id']
                     r_url = r['url']
 
-                    self.referents.append(Referent(c, f, a_id, r_url, api_call))
+                    self.referents.append(Referent(r_class, r_frag, r_id, r_url, api_call))
+
+                    for a in r['annotations']:
+                        a_id = a['id']
+                        a_text = a['body']['plain']
+                        a_share = a['share_url']
+                        a_url = a['url']
+                        a_votes = a['votes_total']
+
+                        self.annotations.append(Annotation(a_id, a_text, a_share, a_url, a_votes, api_call))
+
             elif referents_request_object.status_code >= 500:
                 pass
         elif self.referents != []:
             return self.referents
+
+class Referent():
+    """ Class for representing referents and their respective annotation. """
+    def __init__(self, classification, fragment, annotation_id, url, api_call):
+        self.classification = classification
+        self.fragment = fragment
+        self.annotation_id = annotation_id
+        self.url = url
+        self.api_call = api_call
+
+
+class Annotation():
+    """ Class for reprsentation of annotation metadata. """
+    def __init__(self, annotation_id, text, share_url, url, votes, api_call):
+        self.annotation_id = annotation_id
+        self.text = text
+        self.share_url = share_url
+        self.url = url
+        self.votes = votes
+        self.api_call = api_call
 
 
 def genius_search(query):
@@ -119,50 +152,3 @@ def pick_from_search(results_array):
 
     actual_choice = choice - 1
     return results_array[actual_choice]
-
-
-# Referents section
-
-class Referent():
-    """ Class for representing referents and their respective annotation. """
-    def __init__(self, classification, fragment, annotation_id, url, api_call):
-        self.classification = classification
-        self.fragment = fragment
-        self.annotation_id = annotation_id
-        self.url = url
-        self.api_call = api_call
-
-
-# Annotations section
-
-class Annotation():
-    """ Class for reprsentation of annotation metadata. """
-    def __init__(self, text, share_url, url, votes, api_call):
-        self.text = text
-        self.share_url = share_url
-        self.url = url
-        self.votes = votes
-        self.api_call = api_call
-
-
-def get_annotation(annotation_id):
-    '''' Used to pull specific annotation for lyrics. '''
-
-    annotations_endpoint = API + '/annotations/' + str(annotation_id)
-    payload = {'text_format': 'plain', 'access_token': ACCESS_TOKEN}
-    annotations_request_object = requests.get(annotations_endpoint, params=payload)
-
-    if annotations_request_object.status_code == 200:
-        api_call = annotations_request_object.url
-        a_json_response = annotations_request_object.json()
-        a = a_json_response['response']['annotation']
-
-        text = a['body']['plain']
-        share_url = a['share_url']
-        url = a['url']
-        votes = a['votes_total']
-
-    elif annotations_request_object.status_code >= 500:
-        pass
-
-    return Annotation(text, share_url, url, votes, api_call)
