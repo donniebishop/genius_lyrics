@@ -6,6 +6,9 @@ import requests
 import subprocess
 from bs4 import BeautifulSoup
 
+API = 'https://api.genius.com'
+ACCESS_TOKEN = 'Za979SFA7_pwCdjDaAsBhnPb3A5jSgcCMixyiDeJv7U415u3ko6Qd14HIJzqrXFj'
+
 class HitResult():
     def __init__(self, artist, title, song_id, url):
         self.artist = artist
@@ -29,8 +32,6 @@ def genius_search(query):
     formed by JSON responses from the search. '''
 
     results = []
-    API = 'https://api.genius.com'
-    ACCESS_TOKEN = 'Za979SFA7_pwCdjDaAsBhnPb3A5jSgcCMixyiDeJv7U415u3ko6Qd14HIJzqrXFj'
 
     search_endpoint = API + '/search?'
     payload = {'q': query, 'access_token': ACCESS_TOKEN}
@@ -52,7 +53,7 @@ def genius_search(query):
         six.print_('[!] Uh-oh, something seems wrong...')
         six.print_('[!] Please submit an issue at https://github.com/donniebishop/genius_lyrics/issues')
         sys.exit(1)
-        
+
     elif search_request_object.status_code >= 500:
         six.print_('[*] Hmm... Genius.com seems to be having some issues right now.')
         six.print_('[*] Please try your search again in a little bit!')
@@ -90,3 +91,39 @@ def pick_from_search(results_array):
 
     actual_choice = choice - 1
     return results_array[actual_choice]
+
+
+# Referents section
+
+class Referent():
+    """docstring for Referent"""
+    def __init__(self, classification, fragment, ref_id, url):
+        self.classification = classification
+        self.fragment = fragment
+        self.ref_id = ref_id
+        self.url = url
+
+
+def get_referents(song_id):
+    ''' Use song_id to pull referents for any annotations for the song. '''
+
+    referents = []
+
+    referents_endpoint = API + '/referents'
+    payload = {'song_id': song_id, 'access_token': ACCESS_TOKEN}
+    referents_request_object = requests.get(referents_endpoint, params=payload)
+
+    if referents_request_object.status_code == 200:
+        json_response = referents_request_object.json()
+
+        for r in json_response['response']['referents']:
+            c = r['classification']
+            f = r['fragment']
+            r_id = r['id']
+            r_url = r['url']
+
+            referents.append(Referent(c, f, r_id, r_url))
+    elif referents_request_object.status_code >= 500:
+        pass
+
+    return referents
