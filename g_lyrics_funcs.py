@@ -57,7 +57,7 @@ class HitResult():
 
         if self.referents == [] or force is True:
             referents_endpoint = API + '/referents'
-            payload = {'song_id': self.song_id, 'text_format': 'plain'}
+            payload = {'song_id': self.song_id, 'text_format': 'plain', 'per_page': '50'}
             referents_request_object = requests.get(referents_endpoint, params=payload, headers=HEADERS)
 
             if referents_request_object.status_code == 200:
@@ -97,10 +97,9 @@ class HitResult():
         for r in range(len(self.referents)):
             current = self.referents[r].fragment
             if current in marked_lyrics:
-                marked_lyrics = marked_lyrics.replace(current, '%{}%'.format(current))
+                marked_lyrics = marked_lyrics.replace(current, '[% {} %]'.format(current))
 
         self.lyrics = marked_lyrics
-        return self.lyrics
 
 
 class Referent():
