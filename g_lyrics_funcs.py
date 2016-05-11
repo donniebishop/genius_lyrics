@@ -23,6 +23,7 @@ class HitResult():
         self.url = url
         self.api_call = api_call
         self.lyrics = None
+        self.highlighted = []
 
         # for use at a later date
         self.referents = []
@@ -97,6 +98,9 @@ class HitResult():
         for r in range(len(self.referents)):
             current = self.referents[r].fragment
             if current in marked_lyrics:
+                marked_lyrics = marked_lyrics.replace(current, '[% {} %]'.format(current))
+
+        self.lyrics = marked_lyrics
 
 
 class Referent():
