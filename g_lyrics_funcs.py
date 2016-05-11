@@ -23,7 +23,6 @@ class HitResult():
         self.url = url
         self.api_call = api_call
         self.lyrics = None
-        self.highlighted = []
 
         # for use at a later date
         self.referents = []
@@ -37,10 +36,6 @@ class HitResult():
             get_url = requests.get(self.url)
             song_soup = BeautifulSoup(get_url.text, 'lxml')
             self.lyrics = song_soup.lyrics.text
-
-            # self.highlighted used to match referents to actual highlighted lyrics
-            for song_a in song_soup.lyrics.find_all('a'):
-                self.highlighted.append(song_a.text)
         else:
             return self.lyrics
 
@@ -102,9 +97,6 @@ class HitResult():
         for r in range(len(self.referents)):
             current = self.referents[r].fragment
             if current in marked_lyrics:
-                marked_lyrics = marked_lyrics.replace(current, '[% {} %]'.format(current))
-
-        self.lyrics = marked_lyrics
 
 
 class Referent():
