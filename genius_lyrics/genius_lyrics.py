@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import sys
 import argparse
 import tempfile
+import subprocess
 from g_lyrics_funcs import *
 
 parser = argparse.ArgumentParser(description='The Python genius.com commandline lyric searcher.')

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
+import sys
 import six
 import lxml
 import requests
-import subprocess
 from bs4 import BeautifulSoup
 
 # Header uses Client Authorization Token from api.genius.com. As such,
