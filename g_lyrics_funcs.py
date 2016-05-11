@@ -22,20 +22,35 @@ class HitResult():
         self.song_id = song_id
         self.url = url
         self.api_call = api_call
+        self.lyrics = None
 
         # for use at a later date
         self.referents = []
         self.annotations = []
 
+
+    def get_lyrics(self):
+        '''Looks up song_url, parses page for lyrics and returns the lyrics.'''
+
+        if self.lyrics == None:
+            get_url = requests.get(self.url)
+            song_soup = BeautifulSoup(get_url.text, 'lxml')
+            self.lyrics = song_soup.lyrics.text
+        else:
+            return self.lyrics
+
+
     def form_output(self):
         '''Forms lyric sheet output for either paging or printing directly to a terminal.'''
 
+        self.get_lyrics()
         header = '{} - {}'.format(self.artist, self.title)
         divider = '-'*(len(header) + 3)
-        lyrics = get_lyrics_from_url(self.url)
+        lyrics = self.lyrics
 
         output = header + '\n' + divider + '\n' + lyrics + '\n'
         return output
+
 
     def get_referents_annotations(self, force=False):
         ''' Use song_id to pull referents for any annotations for the song. '''
@@ -71,6 +86,22 @@ class HitResult():
                 pass
         elif self.referents != []:
             return self.referents
+
+
+    def mark_lyrics(self):
+        ''' Mark lyrics for later use with highlighting referents and clicking and
+        calling up the related annotation. '''
+
+        marked_lyrics = self.lyrics
+
+        for r in range(len(self.referents)):
+            current = self.referents[r].fragment
+            if current in marked_lyrics:
+                marked_lyrics = marked_lyrics.replace(current, '%{}%'.format(current))
+
+        self.lyrics = marked_lyrics
+        return self.lyrics
+
 
 class Referent():
     """ Class for representing referents and their respective annotation. """
@@ -127,15 +158,6 @@ def genius_search(query):
         sys.exit(1)
 
     return results
-
-
-def get_lyrics_from_url(song_url):
-    '''Looks up song_url, parses page for lyrics and returns the lyrics.'''
-
-    get_url = requests.get(song_url)
-    song_soup = BeautifulSoup(get_url.text, 'lxml')
-    soup_lyrics = song_soup.lyrics.text
-    return soup_lyrics
 
 
 def pick_from_search(results_array):
