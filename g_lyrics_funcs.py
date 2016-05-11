@@ -23,12 +23,10 @@ class HitResult():
         self.url = url
         self.api_call = api_call
         self.lyrics = None
-        self.highlighted = []
 
         # for use at a later date
         self.referents = []
         self.annotations = []
-
 
     def get_lyrics(self):
         '''Looks up song_url, parses page for lyrics and returns the lyrics.'''
@@ -36,10 +34,11 @@ class HitResult():
         if self.lyrics == None:
             get_url = requests.get(self.url)
             song_soup = BeautifulSoup(get_url.text, 'lxml')
+
             self.lyrics = song_soup.lyrics.text
+            self.highlighted = [a.text for a in song_soup.lyrics.find_all('a')]
         else:
             return self.lyrics
-
 
     def form_output(self):
         '''Forms lyric sheet output for either paging or printing directly to a terminal.'''
@@ -51,7 +50,6 @@ class HitResult():
 
         output = header + '\n' + divider + '\n' + lyrics + '\n'
         return output
-
 
     def get_referents_annotations(self, force=False):
         ''' Use song_id to pull referents for any annotations for the song. '''
@@ -88,16 +86,16 @@ class HitResult():
         elif self.referents != []:
             return self.referents
 
-
     def mark_lyrics(self):
         ''' Mark lyrics for later use with highlighting referents and clicking and
         calling up the related annotation. '''
 
         marked_lyrics = self.lyrics
 
-        for r in range(len(self.referents)):
-            current = self.referents[r].fragment
-            if current in marked_lyrics:
+        for r in self.referents:
+            current = r.fragment
+            already_marked = '[% {} %]'.format(current) in marked_lyrics
+            if current in marked_lyrics and not already_marked:
                 marked_lyrics = marked_lyrics.replace(current, '[% {} %]'.format(current))
 
         self.lyrics = marked_lyrics
