@@ -35,7 +35,10 @@ class HitResult():
             get_url = requests.get(self.url)
             song_soup = BeautifulSoup(get_url.text, 'lxml')
 
-            self.lyrics = song_soup.lyrics.text
+            # Used to extract that stupid google tags thing. I'm a genius.
+            [s.extract() for s in song_soup('div', attrs={'class':'dfp_unit'})]
+
+            self.lyrics = song_soup.lyrics
             self.highlighted = [a.text for a in song_soup.lyrics.find_all('a')]
         else:
             return self.lyrics
@@ -46,9 +49,9 @@ class HitResult():
         self.get_lyrics()
         header = '{} - {}'.format(self.artist, self.title)
         divider = '-'*(len(header) + 3)
-        lyrics = self.lyrics
+        lyrics = self.lyrics.text
 
-        output = header + '\n' + divider + '\n' + lyrics + '\n'
+        output = header + '\n' + divider + lyrics + '\n'
         return output
 
     def get_referents_annotations(self, force=False):
@@ -56,8 +59,11 @@ class HitResult():
 
         if self.referents == [] or force is True:
             referents_endpoint = API + '/referents'
-            payload = {'song_id': self.song_id, 'text_format': 'plain', 'per_page': '50'}
-            referents_request_object = requests.get(referents_endpoint, params=payload, headers=HEADERS)
+            payload = {'song_id': self.song_id,
+                      'text_format': 'plain', 'per_page': '50'}
+            referents_request_object = requests.get(referents_endpoint,
+                                                    params=payload,
+                                                    headers=HEADERS)
 
             if referents_request_object.status_code == 200:
                 r_json_response = referents_request_object.json()
