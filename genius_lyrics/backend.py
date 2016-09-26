@@ -14,6 +14,7 @@ from bs4 import BeautifulSoup
 API = 'https://api.genius.com'
 HEADERS = {'Authorization': 'Bearer rDyWJrXXwACCg-otwQKmomcYSYFv2oQAN3vlTCV_507CW_pEQTQfQ98HtUYXq3W8'}
 
+
 class HitResult():
     ''' Class for representing metadata of search results. '''
     def __init__(self, artist, title, song_id, url, api_call):
@@ -75,7 +76,12 @@ class HitResult():
                     r_url = r['url']
                     r_api_call = referents_request_object.url
 
-                    self.referents.append(Referent(r_class, r_frag, r_id, r_url, r_api_call))
+                    self.referents.append(Referent(r_class,
+                                                   r_frag,
+                                                   r_id,
+                                                   r_url,
+                                                   r_api_call
+                                                   ))
 
                     for a in r['annotations']:
                         a_id = a['id']
@@ -85,10 +91,17 @@ class HitResult():
                         a_votes = a['votes_total']
                         a_api_call = API + '/annotations/' + str(a_id)
 
-                        self.annotations.append(Annotation(a_id, a_text, a_share, a_url, a_votes, a_api_call))
+                        self.annotations.append(Annotation(a_id,
+                                                           a_text,
+                                                           a_share,
+                                                           a_url,
+                                                           a_votes,
+                                                           a_api_call
+                                                           ))
 
             elif referents_request_object.status_code >= 500:
                 pass
+
         elif self.referents != []:
             return self.referents
 
@@ -169,18 +182,29 @@ def pick_from_search(results_array):
     choice from list. Will continue to prompt until it receives a valid choice.
     Returns HitResult instance of the appropriate JSON response. '''
 
+    # Print search result lines
     for n in range(len(results_array)):
         Current = results_array[n]
         result_line = '[{}] {} - {}'.format(n+1, Current.artist, Current.title)
         six.print_(result_line)
 
+    # Determine user choice
+    six.print_('\n[*] Blank line quits genius_lyrics')
     choice = -1
     while choice <= 0 or choice > len(results_array):
         try:
-            choice = int(input('\nPlease select a song number: '))
+            choice = input('Please select a song number: ')
+
+            if choice == '':
+                sys.exit(0)
+            else:
+                choice = int(choice)
+
         except ValueError:
-            six.print_('[!] Please enter a number.')
+            six.print_('[!] Please enter a number.\n')
             choice = -1
 
+    # Return HitResult instance of chosen song
     actual_choice = choice - 1
     return results_array[actual_choice]
+
