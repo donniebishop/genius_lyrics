@@ -183,6 +183,7 @@ def pick_from_search(results_array):
     Returns HitResult instance of the appropriate JSON response. '''
 
     # Print search result lines
+    six.print_()
     for n in range(len(results_array)):
         Current = results_array[n]
         result_line = '[{}] {} - {}'.format(n+1, Current.artist, Current.title)
@@ -196,6 +197,7 @@ def pick_from_search(results_array):
             choice = input('Please select a song number: ')
 
             if choice == '':
+                six.print_()
                 sys.exit(0)
             else:
                 choice = int(choice)
