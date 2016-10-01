@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 # Utility function to read the README file.
 
@@ -18,6 +18,13 @@ setup(
     author='Donnie Bishop',
     author_email='donnie.a.bishop@gmail.com',
     license='MIT',
-    packages=find_packages(),
+    install_requires=['requests','beautifulsoup4','six','lxml'],
+    packages=['genius_lyrics'],
+    include_package_data=True,
+    entry_points={
+        'console_scripts': [
+            'genius_lyrics=genius_lyrics.genius_lyrics:main'
+            ]
+        },
     keywords='Genius lyrics api music CLI rap',
 )

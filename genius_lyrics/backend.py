@@ -2,7 +2,6 @@
 
 import sys
 import six
-import lxml
 import requests
 from bs4 import BeautifulSoup
 
@@ -34,7 +33,11 @@ class HitResult():
 
         if self.lyrics == None:
             get_url = requests.get(self.url)
-            song_soup = BeautifulSoup(get_url.text, 'lxml')
+            try:
+                import lxml
+                song_soup = BeautifulSoup(get_url.text, 'lxml')
+            except ImportError:
+                song_soup = BeautifulSoup(get_url.text, 'html.parser')
 
             # Used to extract that stupid google tags thing. I'm a genius.
             [s.extract() for s in song_soup('div', attrs={'class':'dfp_unit'})]

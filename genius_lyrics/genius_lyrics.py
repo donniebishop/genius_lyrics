@@ -3,27 +3,26 @@
 import argparse
 import tempfile
 import subprocess
-from backend import *
-
-parser = argparse.ArgumentParser(description='The Python genius.com commandline lyric searcher.')
-
-parser.add_argument('query', nargs='+',
-                    help='Query to search genius.com for. Will automatically select the best result.')
-parser.add_argument('-s', '--search',
-                    action='store_true', default=False,
-                    help='Display list of top results found. Suppresses automatic selection.')
-parser.add_argument('-p', '--print_lyrics',
-                    action='store_true', default=False,
-                    help='Print lyrics to console; do not send to pager.')
-
-if len(sys.argv) < 2:
-    parser.print_help()
-    sys.exit(1)
-
-args = parser.parse_args()
+from genius_lyrics.backend import *
 
 # Here's where the magic happens
-if __name__ == '__main__':
+def main():
+    parser = argparse.ArgumentParser(description='The Python genius.com commandline lyric searcher.')
+
+    parser.add_argument('query', nargs='+',
+                        help='Query to search genius.com for. Will automatically select the best result.')
+    parser.add_argument('-s', '--search',
+                        action='store_true', default=False,
+                        help='Display list of top results found. Suppresses automatic selection.')
+    parser.add_argument('-p', '--print_lyrics',
+                        action='store_true', default=False,
+                        help='Print lyrics to console; do not send to pager.')
+
+    if len(sys.argv) < 2:
+        parser.print_help()
+        sys.exit(1)
+
+    args = parser.parse_args()
     search_query = ' '.join(args.query)
     search_results = genius_search(search_query)
 
@@ -46,3 +45,6 @@ if __name__ == '__main__':
             command_list = ['/bin/less', t.name]
             subprocess.call(command_list)
         six.print_()
+
+if __name__ == '__main__':
+    main()
